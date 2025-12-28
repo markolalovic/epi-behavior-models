@@ -1,20 +1,22 @@
-# epi-behavior-models-dev
-Parameter inference of epidemic models that incorporate behavior using ABC method based on sequential Monte Carlo (ABC-SMC).
+# epi-behavior-models
+This repository contains the source code for the paper:  
+- The Paradox of Neglecting Changes in Behavior: How Standard Epidemic Models Misestimate Both Transmissibility and Final Epidemic Size
+- Link to: [preprint (medRxiv)](https://www.medrxiv.org/content/10.64898/2025.12.07.25341782v2)
+
+## Overview
+This repository provides a framework for parameter inference of compartmental epidemic models that incorporate human behavioral feedback. The inference is performed using Approximate Bayesian Computation based on Sequential Monte Carlo (ABC-SMC) using [pyABC](https://pyabc.readthedocs.io/en/latest/) library.
 
 It includes:
-- Parameter inference using `pyABC` library.
-- Analysis and diagnostics of the inference results.
-
-### Models:
-1. Basic SEIRD model called `model_baseline`
-2. Extended SEIRD model with behavior feedback loop, using adjusted `beta` with parameter `zeta`, this is called `model_behavior`
-3. SEIRPD model, which is delayed version of behavior model, with additional parameter `tau`, called  `model_behavior_delayed`
+- Implementation of SEIRD models with constant and behavioral transmission.
+- ABC-SMC pipeline for estimating posterior distributions of epidemiological parameters.
+- Bayesian model selection to compare behavioral and baseline model performance (using Bayes factors).
+- Analysis and diagnostics of the inference results and visualizations in R.
 
 ## Examples
-In the examples below we generate synthetic data from empirically plausible parameters and recover them using the ABC-SMC. 
+In the examples below we estimate parameters from synthetic observations for two models.
 
 ### 1. Baseline model (SEIRD)
-Recovery of parameters under the assumption of constant transmission.
+Recovery of parameters under the assumption of constant transmission $\beta(t) = \beta_0$:
 ```bash
 python3 src/run_example.py --model baseline
 ```
@@ -25,7 +27,7 @@ python3 src/run_example.py --model baseline
 *The red dashed lines and markers indicate the ground-truth parameters used to generate the synthetic observations.*
 
 ### 2. Behavioral model (Mixed form)
-Recovery of parameters including the behavioral sensitivity $\zeta$.
+Recovery of parameters when including the behavioral sensitivity $\zeta$:
 ```bash
 python3 src/run_example.py --model behavior
 ```
@@ -35,27 +37,61 @@ python3 src/run_example.py --model behavior
 
 *The red dashed lines and markers indicate the ground-truth parameters used to generate the synthetic observations.*
 
-### Installation
-Clone this repository:
+## Reproducing results
+### 1. Installation
+Clone the repository
 ```bash
 git clone https://github.com/markolalovic/epi-behavior-models.git
 cd epi-behavior-models
 ```
 
-Install the necessary Python packages in a virtual environment:
+Install the minimal minimal set of Python packages in a fresh virtual environment:
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 python3 -m pip install --upgrade pip
-python3 -m pip install numpy
-python3 -m pip install scipy
-python3 -m pip install pandas
-python3 -m pip install matplotlib
-python3 -m pip install pyabc
+python3 -m pip install -r requirements.txt
 ```
 
-## TODO:
-Later, create a requirements file to simplify installation, i.e.:
+### 2. Data
+The models are calibrated to COVID-19 mortality data from the Johns Hopkins University (JHU) CSSE repository:
+
+- Source: [CSSEGISandData](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_time_series)
+- Direct link: [`time_series_covid19_deaths_US.csv`](https://github.com/CSSEGISandData/COVID-19/blob/4360e50239b4eb6b22f3a1759323748f36752177/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_US.csv)
+- File size: 11.9 MB
+
+Note: `time_series_covid19_deaths_US.csv` is large and not tracked by version control, see `.gitignore`.
+
+Download the CSV file and place it in `data/raw/` before execution.
+
+### 3. Execution
+To regenerate all results: processed data, summary statistics, figures and tables, run:
 ```bash
-python3 -m pip install -r requirements.txt
+./run_all.sh --all
+```
+
+Note: full inference across 30 locations is computationally intensive.
+
+See `run_all.sh` how to set flags to skip some parts, or use the provided summary statistics to regenerate tables and figures.
+
+Note: Regenerating the figures and tables requires R (Version $\ge 4$) and the following R packages:
+```R
+install.packages(c(
+    "ggplot2", "dplyr", "tidyr", "reticulate", "tikzDevice",
+    "patchwork", "knitr", "kableExtra", "ggh4x"))
+```
+
+## Citation
+```bibtex
+@article {Pant2025.12.07.25341782,
+	author = {Pant, Binod and Lalovic, Marko and Kiss, Istv{\'a}n Z. and Santillana, Mauricio},
+	title = {The Paradox of Neglecting Changes in Behavior: How Standard Epidemic Models Misestimate Both Transmissibility and Final Epidemic Size},
+	elocation-id = {2025.12.07.25341782},
+	year = {2025},
+	doi = {10.64898/2025.12.07.25341782},
+	publisher = {Cold Spring Harbor Laboratory Press},
+	URL = {https://www.medrxiv.org/content/early/2025/12/15/2025.12.07.25341782},
+	eprint = {https://www.medrxiv.org/content/early/2025/12/15/2025.12.07.25341782.full.pdf},
+	journal = {medRxiv}
+}
 ```
