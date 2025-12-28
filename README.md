@@ -72,7 +72,7 @@ To regenerate all results: processed data, summary statistics, figures and table
 
 Note: full inference across 30 locations is computationally intensive.
 
-See `run_all.sh` how to set flags to skip some parts, or use the provided summary statistics to regenerate tables and figures.
+See [`run_all.sh`](./run_all.sh) how to set flags to skip some parts, or use the provided summary statistics to regenerate tables and figures.
 
 Note: Regenerating the figures and tables requires R (Version $\ge 4$) and the following R packages:
 ```R
