@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
-"""run_synthetic_experiments.py
-
+"""src/run_synthetic_experiments.py
 Runs synthetic experiments with different ground truths:
   - Behavior (Mixed)
   - Behavior (Exponential)

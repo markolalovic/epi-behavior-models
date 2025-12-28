@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
 """src/calculate_synthetic_r0_and_final_sizes.py
 Calculates reference ground-truth values for R_0 and final epidemic sizes.
 

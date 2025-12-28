@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
 """src/run_example.py
-
 For example model:
 - Generates synthetic data daily deaths using config.EXAMPLE_PARAMS
 - Runs ABC-SMC to estimate posteriors

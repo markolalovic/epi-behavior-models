@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """src/run_model_selection.py
 Performs ABC-SMC model selection between the Baseline model 
 and each of the three behavioral variants: mixed, exp, and rational.

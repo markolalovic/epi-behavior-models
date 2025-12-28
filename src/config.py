@@ -1,10 +1,12 @@
-'''config.py
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""src/config.py
 Configuration file specifies:
-  * Locations, names, population sizes, 
-  * Model names, properties for analysis and plotting,
-  * Fixed model parameters,
-  * Priors for inferred parameters by ABC-SMC.
-'''
+- Locations, names, population sizes, 
+- Model names, properties for analysis and plotting,
+- Fixed model parameters,
+- Priors for inferred parameters by ABC-SMC.
+"""
 
 from pyabc import Distribution, RV
 import numpy as np

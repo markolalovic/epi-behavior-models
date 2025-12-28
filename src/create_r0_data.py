@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""create_r0_data.py
+"""src/create_r0_data.py
 Calculates the statistics for R_0 boxplots Panel A figures:
 - Main Figure 2, and Supplement Figures S6, S7
 

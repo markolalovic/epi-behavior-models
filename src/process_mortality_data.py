@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-""" src/process_mortality_data.py
-
+"""src/process_mortality_data.py
 Processes raw mortality data into `data/processed/smoothed_mortality.csv`
 Columns:
   date, CT, IL, MA, MI, NY, PA, ...
 Dates:
   2020-03-01 ... 2020-07-01 (inclusive)
 
-Also writes `data/processed/population_sizes.csv`
-
+Outputs: 
+- data/processed/smoothed_mortality.csv
+- data/processed/population_sizes.csv
 """
 
 import os

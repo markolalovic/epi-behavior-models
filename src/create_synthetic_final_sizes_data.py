@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """src/create_synthetic_final_sizes_data.py
 Calculated data for synthetic experiments Panel C figures:
 - Calculates extinction-based final epidemic size:

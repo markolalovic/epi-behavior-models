@@ -1,4 +1,8 @@
-# src/plotting.py
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""src/plotting.py
+Plotting helpers for KDEs and fits figures.
+"""
 
 import numpy as np
 import matplotlib.pyplot as plt

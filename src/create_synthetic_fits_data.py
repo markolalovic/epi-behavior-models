@@ -1,29 +1,30 @@
 #!/usr/bin/env python3
-# src/create_synthetic_fits_data.py
-#
-# Generates the quantiles for synthetic fits figures Panels A.
-# Calculates: 
-# - medians and 90% credible intervals from 1000 simulations per synthetic experiment.
-#
-# For each baseline, behavior variant(beta_form) pair,
-# where beta_form in ["mixed", "exp", "rational"]:
-# - Load synthetic smoothed synthetic observations for zeta values:
-#     `data/synthetic_mortality_ground_truth_{beta_form}.csv`
-#
-# - For each zeta value:
-#    - load weighted posterior
-#    - sample 1000 parameter sets (with weights)
-#    - simulate trajectories
-#    - compute median and 90% credible interval
-#    - save columns:
-#     date, synthetic_id, zeta_value, beta_form, model_name, 
-#     lower_90, median, upper_90, synth observation
-#
-# Outputs:
-# - data/plotting/fits_data_synthetic_ground_truth_mixed.csv
-# - data/plotting/fits_data_synthetic_ground_truth_exp.csv
-# - data/plotting/fits_data_synthetic_ground_truth_rational.csv
-#
+# -*- coding: utf-8 -*-
+"""src/create_synthetic_fits_data.py
+Generates the quantiles for synthetic fits figures Panels A.
+Calculates: 
+- medians and 90% credible intervals from 1000 simulations per synthetic experiment.
+
+For each baseline, behavior variant(beta_form) pair,
+where beta_form in ["mixed", "exp", "rational"]:
+- Load synthetic smoothed synthetic observations for zeta values:
+    `data/synthetic_mortality_ground_truth_{beta_form}.csv`
+
+- For each zeta value:
+   - load weighted posterior
+   - sample 1000 parameter sets (with weights)
+   - simulate trajectories
+   - compute median and 90% credible interval
+   - save columns:
+    date, synthetic_id, zeta_value, beta_form, model_name, 
+    lower_90, median, upper_90, synth observation
+
+Outputs:
+- data/plotting/fits_data_synthetic_ground_truth_mixed.csv
+- data/plotting/fits_data_synthetic_ground_truth_exp.csv
+- data/plotting/fits_data_synthetic_ground_truth_rational.csv
+
+"""
 
 import os
 import numpy as np

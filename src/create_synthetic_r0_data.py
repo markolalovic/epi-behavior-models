@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """src/create_synthetic_r0_data.py
 Calculates data for synthetic experiments Panel B figures:
 - Weighted boxplot statistics for R_0

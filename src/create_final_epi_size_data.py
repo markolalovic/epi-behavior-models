@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""create_final_epi_size_data.py
+"""src/create_final_epi_size_data.py
 Calculates the statistics for final epidemic size boxplots Panel B figures:
 - Main Figure 2, and Supplement Figures S6, S7
 

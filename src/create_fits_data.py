@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""create_fits_data.py
+"""src/create_fits_data.py
 Generates the data needed for plotting the model fits figures:
 - Main Figure 1, and Supplement Figures S4, S5
 

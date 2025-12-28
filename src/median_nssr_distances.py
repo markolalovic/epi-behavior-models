@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """src/median_nssr_distances.py
 Computes weighted median posterior NSSE distances for all models and locations.
 

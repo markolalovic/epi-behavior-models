@@ -1,4 +1,8 @@
-# src/utils.py
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""src/utils.py
+Some math and data helpers.
+"""
 
 import numpy as np
 import pandas as pd

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """src/create_beta_eff_data.py
 Calculates the data for plotting the effective transmission rate beta(t).
 

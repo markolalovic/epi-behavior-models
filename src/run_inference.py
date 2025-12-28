@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-""" run_inference.py
+"""src/run_inference.py
 Runs the ABC-SMC inference for all specified models and locations.
 """
 

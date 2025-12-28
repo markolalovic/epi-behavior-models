@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """models.py
 Model definitions, run model function, and compute_final_size_until_extinction.
 """

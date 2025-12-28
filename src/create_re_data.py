@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """src/create_re_data.py
 Calculates the data for plotting the effective reproduction number Re(t)
 
