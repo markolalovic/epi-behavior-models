@@ -45,7 +45,7 @@ git clone https://github.com/markolalovic/epi-behavior-models.git
 cd epi-behavior-models
 ```
 
-Install the minimal minimal set of Python packages in a fresh virtual environment:
+Install the minimal set of Python packages in a fresh virtual environment:
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
