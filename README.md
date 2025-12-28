@@ -24,7 +24,7 @@ python3 src/run_example.py --model baseline
 | :---: | :---: |
 | ![Baseline Posteriors](./figures/examples/posteriors_baseline.svg) | ![Baseline Fit](./figures/examples/fit_baseline.svg) |
 
-*The red dashed lines and markers indicate the ground-truth parameters used to generate the synthetic observations.*
+The red dashed lines and markers indicate the ground-truth parameters used to generate the synthetic observations.
 
 ### 2. Behavioral model (Mixed form)
 Recovery of parameters when including the behavioral sensitivity $\zeta$:
@@ -35,7 +35,7 @@ python3 src/run_example.py --model behavior
 | :---: | :---: |
 | ![Behavior Posteriors](./figures/examples/posteriors_behavior.svg) | ![Behavior Fit](./figures/examples/fit_behavior.svg) |
 
-*The red dashed lines and markers indicate the ground-truth parameters used to generate the synthetic observations.*
+The red dashed lines and markers indicate the ground-truth parameters used to generate the synthetic observations.
 
 ## Reproducing results
 ### 1. Installation
