@@ -1,7 +1,9 @@
 # epi-behavior-models
-This repository contains the source code for the paper:  
+This repository contains the source code for the paper:
+
 - The Paradox of Neglecting Changes in Behavior: How Standard Epidemic Models Misestimate Both Transmissibility and Final Epidemic Size
-- Link to: [preprint (medRxiv)](https://www.medrxiv.org/content/10.64898/2025.12.07.25341782v2)
+
+- [PDF](https://www.medrxiv.org/content/10.64898/2025.12.07.25341782v3.full.pdf) | [Supplement](https://www.medrxiv.org/content/medrxiv/early/2025/12/29/2025.12.07.25341782/DC1/embed/media-1.pdf?download=true)
 
 ## Overview
 This repository provides a framework for parameter inference of compartmental epidemic models that incorporate human behavioral feedback. The inference is performed using Approximate Bayesian Computation based on Sequential Monte Carlo (ABC-SMC) using [pyABC](https://pyabc.readthedocs.io/en/latest/) library.
