@@ -83,15 +83,14 @@ install.packages(c(
 
 ## Citation
 ```bibtex
-@article {Pant2025.12.07.25341782,
+@article{Pant2025Behavior,
 	author = {Pant, Binod and Lalovic, Marko and Kiss, Istv{\'a}n Z. and Santillana, Mauricio},
 	title = {The Paradox of Neglecting Changes in Behavior: How Standard Epidemic Models Misestimate Both Transmissibility and Final Epidemic Size},
-	elocation-id = {2025.12.07.25341782},
 	year = {2025},
 	doi = {10.64898/2025.12.07.25341782},
-	publisher = {Cold Spring Harbor Laboratory Press},
-	URL = {https://www.medrxiv.org/content/early/2025/12/15/2025.12.07.25341782},
+	journal = {medRxiv},
+    note = {Preprint. Submitted to PLOS Computational Biology},
+	URL = {https://www.medrxiv.org/content/10.64898/2025.12.07.25341782v2},
 	eprint = {https://www.medrxiv.org/content/early/2025/12/15/2025.12.07.25341782.full.pdf},
-	journal = {medRxiv}
 }
 ```
