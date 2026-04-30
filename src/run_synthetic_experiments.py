@@ -64,7 +64,7 @@ def generate_synthetic_data(beta_form, base_params, zeta_value,
         is_behavioral = False
     else:
         model_name = variant_name(beta_form)
-        display_name = f"Behavioral ({beta_form})",
+        display_name = f"Behavioral ({beta_form})"
         is_behavioral = True
     
     model_dict = {
@@ -159,7 +159,7 @@ if __name__ == "__main__":
         print(f"\nRunning for ground truth: {beta_form}...")
 
         # Generate synthetic dataset
-        print("\Generating synthetic dataset...")
+        print("\nGenerating synthetic dataset...")
         dates, wide_df, meta = generate_synthetic_data_all_zeta_values(beta_form)
         data_out_wide = f"../data/synthetic_mortality_ground_truth_{beta_form}.csv"
         wide_df.to_csv(data_out_wide, index=False)
@@ -171,7 +171,7 @@ if __name__ == "__main__":
         print(f"N: {meta['fixed_params']['N']}")
 
         # fit all models to this synthetic dataset
-        print("\Fitting all models to synthetic dataset...")
+        print("\nFitting all models to synthetic dataset...")
         for i, z in enumerate(zeta_grid, start=1):
             col = f"y_zeta_{z:g}"
             synthetic_data = wide_df[col]
@@ -185,5 +185,5 @@ if __name__ == "__main__":
 
         print(f"\nDone for ground truth: {beta_form}.")
 
-    print("\Done for all ground truths.")
+    print("\nDone for all ground truths.")
 

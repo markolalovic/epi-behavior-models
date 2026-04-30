@@ -30,7 +30,7 @@ from config import (
 )
 
 from models import run_seird_model
-from inference import nsse_distance
+from inference import nssr_distance
 
 def prior_for_model(model_dict):
     """Behavioral variants use full prior, baseline has no zeta."""
@@ -141,7 +141,7 @@ def run_selection_pair(location, behavior_model_cfg,
     abc = ABCSMC(
         models=model_fns, 
         parameter_priors=priors, 
-        distance_function=nsse_distance,
+        distance_function=nssr_distance,
         population_size=pop_size, 
         transitions=transitions, 
         eps=QuantileEpsilon(alpha=alpha_q)

@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from tabulate import tabulate
-from config import SYNTHETIC_CONFIG
+from config import SYNTHETIC_CONFIG, RESULT
 
 def trailing_ma7(x):
     # x: 1D np.array of length T

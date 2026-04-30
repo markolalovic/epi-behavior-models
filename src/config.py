@@ -11,6 +11,9 @@ Configuration file specifies:
 from pyabc import Distribution, RV
 import numpy as np
 
+# NOTE: for testing
+# LOCATIONS = ["MA"]
+
 # 30 selected US locations
 LOCATIONS = [
     'CT', 'DC', 'DE', 'GA', 'IA', 'IL', 
@@ -193,6 +196,14 @@ ABCSMC_CONFIG = {
     'transition': 'MultivariateNormalTransition',
     'sampler': 'MulticoreEvalParallelSampler',
 }
+# # NOTE: for testing
+# ABCSMC_CONFIG = {
+#     'population_size': 50,
+#     'quantile_alpha': 0.3,
+#     'transition': 'MultivariateNormalTransition',
+#     'sampler': 'MulticoreEvalParallelSampler',
+# }
+
 
 # stopping criteria
 ABC_RUN_CONFIG = {
@@ -201,6 +212,13 @@ ABC_RUN_CONFIG = {
     'max_total_nr_simulations': 120000,
     'min_eps_diff': 1e-3
 }
+# # NOTE: for testing
+# ABC_RUN_CONFIG = {
+#     'max_nr_populations': 2,
+#     'max_walltime_s': 5 * 60,
+#     'max_total_nr_simulations': 2000,
+#     'min_eps_diff': 1e-3
+# }
 
 # ABC-SMC model selection hyperparameters 
 MODEL_SELECTION_CONFIG = {

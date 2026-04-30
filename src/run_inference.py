@@ -21,7 +21,7 @@ if __name__ == "__main__":
     start_time = time.time()
     print("--- Starting all ABC-SMC fitting runs ---")
 
-    data_path = "../data/smoothed_mortality.csv"
+    data_path = "../data/processed/smoothed_mortality.csv"
     df_all = pd.read_csv(data_path, parse_dates=["date"])
     df_all = df_all.sort_values("date").reset_index(drop=True)
 
