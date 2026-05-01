@@ -72,7 +72,7 @@ def find_stable_generation(df, behavior_name, baseline_name, delta, k_consec):
         t0 = max(1, t - k_consec + 1)
         window = df[(df["t"] >= t0) & (df["t"] <= t)]
         if len(window) == k_consec and (window["dB"].max() < delta) and (window["dBase"].max() < delta):
-            if float(df.loc[df["t"] == t, baseline_name]) > 0.0:
+            if float(df.loc[df["t"] == t, baseline_name].iloc[0]) > 0.0:
                 return t
     
     # else, fallback to last known generation where baseline was not extinct yet
