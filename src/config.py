@@ -11,8 +11,8 @@ Configuration file specifies:
 from pyabc import Distribution, RV
 import numpy as np
 
-# NOTE: for testing
-# LOCATIONS = ["MA"]
+# NOTE: temporary
+# LOCATIONS = ['CO']
 
 # selected US locations
 LOCATIONS = [
@@ -258,4 +258,7 @@ PLOT_LABELS = {
 }
 
 # RESULTS encoding
+# NOTE: temporary
+# RESULT = 99
+
 RESULT = 1

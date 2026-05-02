@@ -8,6 +8,8 @@
 # - `results/table_comparison_baseline_exp.tex`
 # - `results/table_comparison_baseline_rational.tex`
 #
+# ordered by decreasing Bayes factor in favor of the behavioral model
+#
 
 suppressPackageStartupMessages({
   library(dplyr)
@@ -39,8 +41,31 @@ generate_comparison_tex <- function(variant_display_name, variant_code, out_path
   df_bf <- read.csv(bf_path, check.names = FALSE)
 
   # merge nssr and bf by location
-  df_merged <- df_nssr %>%
+  # df_merged <- df_nssr %>%
+  #   inner_join(df_bf, by = "Location")
+  # restrict to current selected locations
+  selected_locs <- unlist(config$LOCATIONS)
+
+  df_nssr_selected <- df_nssr %>%
+    filter(Abbr %in% selected_locs)
+
+  missing_nssr <- setdiff(selected_locs, df_nssr_selected$Abbr)
+  if (length(missing_nssr) > 0) {
+    stop(paste("Missing NSSE rows for:", paste(missing_nssr, collapse = ", ")))
+  }
+
+  missing_bf <- setdiff(df_nssr_selected$Location, df_bf$Location)
+  if (length(missing_bf) > 0) {
+    stop(paste("Missing model-selection rows for:", paste(missing_bf, collapse = ", ")))
+  }
+
+  # merge nssr and bf by full location name
+  df_merged <- df_nssr_selected %>%
     inner_join(df_bf, by = "Location")
+
+  if (nrow(df_merged) != length(selected_locs)) {
+    stop("Merged table does not contain exactly the selected locations.")
+  }  
 
   # find bayes factor column
   bf_col_name <- names(df_merged)[grep("^BF", names(df_merged))]
