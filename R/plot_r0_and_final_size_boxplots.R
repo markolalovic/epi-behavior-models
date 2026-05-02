@@ -7,7 +7,7 @@
 # - figures/supplement/S7_r0_final_size_rational.pdf
 #
 # Each is a two-panel figure comparing 
-# baseline with behavior (variant) across 30 locations:
+# baseline with behavior (variant) across 20 locations:
 #
 # - Panel A: R_0 boxplots
 # - Panel B: Final epidemic size boxplots
@@ -58,7 +58,9 @@ theme_publication <- theme_bw(base_size = FONT_SIZES$base) +
 create_boxplot_figure <- function(behavior_model_name, behavior_color, 
   output_filename, order_filename, out_subdir) {
   
-  order_path <- file.path(project_root, "results", order_filename)
+  selected_locs <- unlist(config$LOCATIONS)
+  order_path <- file.path(project_root, "data", "plotting", order_filename)
+
   out_dir    <- file.path(project_root, "figures", out_subdir)
   dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
   
@@ -70,21 +72,48 @@ create_boxplot_figure <- function(behavior_model_name, behavior_color,
   model_shapes_2 <- c("Baseline" = 16, setNames(17, behavior_model_name))
 
   # load order and data
-  loc_order <- read.csv(order_path)$Location
-  r0_df     <- read.csv(r0_path)
-  final_df  <- read.csv(final_path)
+  order_df  <- read.csv(order_path, stringsAsFactors = FALSE)
+  loc_order <- order_df$Location
+  loc_order <- loc_order[loc_order %in% selected_locs]
+
+  missing_from_order <- setdiff(selected_locs, loc_order)
+  if (length(missing_from_order) > 0) {
+    loc_order <- c(loc_order, missing_from_order)
+  }
+
+  stopifnot(length(loc_order) == length(selected_locs))
+
+  r0_df    <- read.csv(r0_path)
+  final_df <- read.csv(final_path)
 
   # naming mapping
-  target_suffix <- gsub("Behavioral ", "", behavior_model_name)
-  r0_df$model_name    <- gsub("\\(Exp\\)", paste0("(", target_suffix, ")"), r0_df$model_name)
-  final_df$model_name <- gsub("\\(Exp\\)", paste0("(", target_suffix, ")"), final_df$model_name)
+  # target_suffix <- gsub("Behavioral ", "", behavior_model_name)
+  # r0_df$model_name    <- gsub("\\(Exp\\)", paste0("(", target_suffix, ")"), r0_df$model_name)
+  # final_df$model_name <- gsub("\\(Exp\\)", paste0("(", target_suffix, ")"), final_df$model_name)
+  # normalize old naming
+  r0_df$model_name <- gsub(
+    "Behavioral \\(Exp\\)",
+    "Behavioral (Exponential)",
+    r0_df$model_name
+  )
+
+  final_df$model_name <- gsub(
+    "Behavioral \\(Exp\\)",
+    "Behavioral (Exponential)",
+    final_df$model_name
+  )  
 
   # prepare dataframe
   prep_df <- function(df) {
     df %>% 
-      filter(model_name %in% model_order_2) %>%
-      mutate(model_name = factor(model_name, levels = model_order_2),
-             location = factor(location, levels = loc_order))
+      filter(
+        location %in% loc_order,
+        model_name %in% model_order_2
+      ) %>%
+      mutate(
+        model_name = factor(model_name, levels = model_order_2),
+        location   = factor(location, levels = loc_order)
+      )
   }
   r0_df <- prep_df(r0_df); final_df <- prep_df(final_df)
 
@@ -126,10 +155,11 @@ create_boxplot_figure <- function(behavior_model_name, behavior_color,
 }
 
 # Main Figure 2
-create_boxplot_figure("Behavioral (Mixed)", "#E69F00", "F2_r0_final_size_mixed", "order_2_mixed.csv", "main")
+create_boxplot_figure("Behavioral (Mixed)", "#E69F00", "F2_r0_final_size_mixed", "order_mixed.csv", "main")
 
 # Supplement Figure S6
-create_boxplot_figure("Behavioral (Exponential)", "#D55E00", "S6_r0_final_size_exp", "order_2_exp.csv", "supplement")
+create_boxplot_figure("Behavioral (Exponential)", "#D55E00", "S6_r0_final_size_exp", "order_exp.csv", "supplement")
 
 # Supplement Figure S7
-create_boxplot_figure("Behavioral (Rational)", "#CC79A7", "S7_r0_final_size_rational", "order_2_rational.csv", "supplement")
+create_boxplot_figure("Behavioral (Rational)", "#CC79A7", "S7_r0_final_size_rational", "order_rational.csv", "supplement")
+

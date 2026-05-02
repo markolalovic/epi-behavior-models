@@ -114,7 +114,7 @@ def generate_final_size_data():
     models_to_process = MODELS
 
     # 0) Load observed, wide
-    data_path = "../data/smoothed_mortality.csv"
+    data_path = "../data/processed/smoothed_mortality.csv"
     df_all = pd.read_csv(data_path, parse_dates=["date"]).sort_values("date").reset_index(drop=True)
     T = len(df_all)
     print(f"Loaded observed data from {data_path}. Observation length: {T} days.")
@@ -149,7 +149,7 @@ def generate_final_size_data():
                 model_dict=model_dict,
                 location=location,
                 n_samples=1000,
-                total_days=TOTAL_DAYS_EXTINCTION,
+                total_days=1825,
             )
 
             stats = get_boxplot_stats_from_sample(sample)

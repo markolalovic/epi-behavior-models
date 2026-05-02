@@ -82,6 +82,10 @@ install.packages(c(
     "ggplot2", "dplyr", "tidyr", "reticulate", "tikzDevice",
     "patchwork", "knitr", "kableExtra", "ggh4x"))
 ```
+For example, install with:
+```bash
+Rscript -e 'install.packages(c("patchwork", "knitr", "kableExtra", "ggh4x"), repos = "https://cloud.r-project.org")'
+```
 
 ## Citation
 ```bibtex
