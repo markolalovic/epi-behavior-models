@@ -92,9 +92,9 @@ def extract_parameters(location):
 
 def print_nice_table(df):
     """Prints a nice Markdown formated table with the minimum values in bold."""
-    df_fmt = df.copy()
+    df_fmt = df.copy().astype(object)
     numeric_cols = [c for c in df.columns if c != "Location"]
-    
+        
     for i, row in df.iterrows():
         min_val = row[numeric_cols].min()
         for col in numeric_cols:

@@ -6,8 +6,8 @@
 # - figures/supplement/S4_final_fits_exp.pdf
 # - figures/supplement/S5_final_fits_rational.pdf
 #
-# Each as a single figure:
-#   - 5 x 6 grid (30 states)
+# Each as a single figure for 20 selected locations:
+#   - 4 rows x 5 columns
 #   - Baseline vs Behavioral (Mixed)
 #   - 90% predictive intervals + medians + observed data points
 #
@@ -36,9 +36,20 @@ fits_path <- file.path(project_root, "data", "plotting", "fits_data.csv")
 create_fits_grid <- function(behavior_model_name, output_filename, order_filename, out_subdir) {
   
   # paths and order
+  selected_locs <- unlist(config$LOCATIONS)
+
   order_path <- file.path(project_root, "data", "plotting", order_filename)
   order_df  <- read.csv(order_path, stringsAsFactors = FALSE)
+
   loc_codes <- order_df$Location
+  loc_codes <- loc_codes[loc_codes %in% selected_locs]
+
+  missing_from_order <- setdiff(selected_locs, loc_codes)
+  if (length(missing_from_order) > 0) {
+    loc_codes <- c(loc_codes, missing_from_order)
+  }
+
+  stopifnot(length(loc_codes) == length(selected_locs))
 
   out_dir  <- file.path(project_root, "figures", out_subdir)
   dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
@@ -84,12 +95,30 @@ create_fits_grid <- function(behavior_model_name, output_filename, order_filenam
   # load data and normalize model names
   fits_df <- read.csv(fits_path) %>% mutate(date = as.Date(date))
   
-  # map display name, Exp -> Exponential
-  target_suffix <- gsub("Behavioral ", "", behavior_model_name)
-  fits_df$model_name <- gsub("\\(Exp\\)", paste0("(", target_suffix, ")"), fits_df$model_name)
+  # # map display name, Exp -> Exponential
+  # target_suffix <- gsub("Behavioral ", "", behavior_model_name)
+  # fits_df$model_name <- gsub("\\(Exp\\)", paste0("(", target_suffix, ")"), fits_df$model_name)
+  # normalize model names, if old plotting data used Exp
+  fits_df$model_name <- gsub(
+    "Behavioral \\(Exp\\)",
+    "Behavioral (Exponential)",
+    fits_df$model_name
+  )
 
-  fits_df <- fits_df %>% filter(model_name %in% model_order_2)
+  # fits_df <- fits_df %>% filter(model_name %in% model_order_2)
+  # fits_df$location <- factor(fits_df$location, levels = loc_codes)
+  # new filtering
+  fits_df <- fits_df %>%
+    filter(
+      location %in% loc_codes,
+      model_name %in% model_order_2
+    )
+
   fits_df$location <- factor(fits_df$location, levels = loc_codes)
+  fits_df$model_name <- factor(fits_df$model_name, levels = model_order_2)  
+  if (length(unique(fits_df$location)) != length(selected_locs)) {
+    stop("Mismatch between selected locations and locations in fits_df.")
+  }
 
   # legend entries
   legend_breaks <- c(model_order_2, "Observed data")
@@ -118,7 +147,7 @@ create_fits_grid <- function(behavior_model_name, output_filename, order_filenam
       shape = 19,
       show.legend = TRUE
     ) +
-    facet_wrap(~ location, ncol = 6, scales = "free_y") +
+    facet_wrap(~ location, ncol = 5, scales = "free_y") +
     scale_color_manual(name = NULL, values = color_values, breaks = legend_breaks, drop = FALSE) +
     scale_fill_manual(name = NULL, values = fill_values, breaks = legend_breaks, drop = FALSE) +
     scale_linetype_manual(name = NULL, values = linetype_values, breaks = legend_breaks, drop = FALSE) +
@@ -139,7 +168,7 @@ create_fits_grid <- function(behavior_model_name, output_filename, order_filenam
     theme_publication
 
   # export via tikz
-  tikz(tex_file, width = 11.5, height = 8.5, standAlone = TRUE,
+  tikz(tex_file, width = 10.5, height = 7.2, standAlone = TRUE,
     packages = c(
       "\\usepackage{amsmath}",
       "\\usepackage{tikz}",

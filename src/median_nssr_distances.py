@@ -78,5 +78,3 @@ if __name__ == "__main__":
     out_path = os.path.join(out_dir, f"median_nssr_distances_{RESULT}.csv")
     df_out.to_csv(out_path, index=False)
     print(f"\nSaved median NSSR distances to: {out_path}")
-
-    

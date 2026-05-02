@@ -14,20 +14,21 @@ import numpy as np
 # NOTE: for testing
 # LOCATIONS = ["MA"]
 
-# 30 selected US locations
+# selected US locations
 LOCATIONS = [
-    'CT', 'DC', 'DE', 'GA', 'IA', 'IL', 
-    'IN', 'KS', 'KY', 'LA', 'MA', 'MD', 
-    'MI', 'MN', 'MO', 'MS', 'NC', 'NE', 
-    'NH', 'NJ', 'NM', 'NV', 'NY', 'OH', 
-    'OK', 'PA', 'RI', 'VA', 'WA', 'WI'
-]
+    'CO', 'CT', 'DC', 'DE', 'IA', 
+    'IL', 'IN', 'LA', 'MA', 'MD', 
+    'MI', 'MN', 'NJ', 'NM', 'NY', 
+    'OH', 'PA', 'RI', 'VA', 'WA']
 
-# excluded 21 bad locations
+# excluded locations
 LOCATIONS_BAD = [
-    'AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'FL', 
-    'HI', 'ID', 'ME', 'MT', 'ND', 'OR', 'SC', 
-    'SD', 'TN', 'TX', 'UT', 'VT', 'WV', 'WY']
+    'AK', 'AL', 'AR', 'AZ', 'CA', 'FL',
+    'GA', 'HI', 'ID', 'KS', 'KY', 'ME', 
+    'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 
+    'NH', 'NV', 'OK', 'OR', 'SC', 'SD', 
+    'TN', 'TX', 'UT', 'VT', 'WI', 'WV', 
+    'WY']
 
 # mapping abbreviations to full names 
 LOCATION_NAME = {
