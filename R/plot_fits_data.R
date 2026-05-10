@@ -147,7 +147,8 @@ create_fits_grid <- function(behavior_model_name, output_filename, order_filenam
       shape = 19,
       show.legend = TRUE
     ) +
-    facet_wrap(~ location, ncol = 5, scales = "free_y") +
+    # facet_wrap(~ location, ncol = 5, scales = "free_y") +
+    facet_wrap(~ location, ncol = 6, scales = "free_y") +
     scale_color_manual(name = NULL, values = color_values, breaks = legend_breaks, drop = FALSE) +
     scale_fill_manual(name = NULL, values = fill_values, breaks = legend_breaks, drop = FALSE) +
     scale_linetype_manual(name = NULL, values = linetype_values, breaks = legend_breaks, drop = FALSE) +
@@ -168,7 +169,10 @@ create_fits_grid <- function(behavior_model_name, output_filename, order_filenam
     theme_publication
 
   # export via tikz
-  tikz(tex_file, width = 10.5, height = 7.2, standAlone = TRUE,
+  # tikz(tex_file, width = 10.5, height = 7.2, standAlone = TRUE,
+  # NEW: # 6 column x 9 rows
+  # tikz(tex_file, width = 13.0, height = 13.0, standAlone = TRUE, 
+  tikz(tex_file, width = 14.0, height = 14.5, standAlone = TRUE, engine = "luatex",
     packages = c(
       "\\usepackage{amsmath}",
       "\\usepackage{tikz}",
@@ -182,8 +186,13 @@ create_fits_grid <- function(behavior_model_name, output_filename, order_filenam
   dev.off()
 
   # compile and clean up
-  system(paste("pdflatex -halt-on-error -interaction=nonstopmode -output-directory", 
-               shQuote(out_dir), shQuote(tex_file)))
+  # system(paste("pdflatex -halt-on-error -interaction=nonstopmode -output-directory", 
+  #              shQuote(out_dir), shQuote(tex_file)))
+  system(paste(
+    "lualatex -halt-on-error -interaction=nonstopmode -output-directory",
+    shQuote(out_dir),
+    shQuote(tex_file)
+  ))  
   
   aux_base  <- sub("\\.tex$", "", basename(tex_file))
   invisible(lapply(file.path(out_dir, paste0(aux_base, c(".aux", ".log"))), 
