@@ -11,42 +11,32 @@ Configuration file specifies:
 from pyabc import Distribution, RV
 import numpy as np
 
-# NOTE: temporary
-# NOTE: temporary — run model selection only for locations missing
-# from results/model_selection/baseline_vs_*_summary_1.csv.
-# LOCATIONS = [
-#     'AK', 'AL', 'AR', 'AZ', 'CA', 'FL',
-#     'HI', 'ID', 'ME', 'MT', 'ND', 'OR',
-#     'SC', 'SD', 'TN', 'TX', 'UT', 'VT',
-#     'WV', 'WY'
-# ]
-
 # selected US locations
-# LOCATIONS = [
-#     'CO', 'CT', 'DC', 'DE', 'IA', 
-#     'IL', 'IN', 'LA', 'MA', 'MD', 
-#     'MI', 'MN', 'NJ', 'NM', 'NY', 
-#     'OH', 'PA', 'RI', 'VA', 'WA']
+LOCATIONS = [
+    'CT', 'DC', 'DE', 'IA', 
+    'IL', 'IN', 'LA', 'MA', 'MD', 
+    'MI', 'MN', 'NJ', 'NM', 'NY', 
+    'OH', 'PA', 'RI', 'VA', 'WA']
 
 # excluded locations
-# LOCATIONS_BAD = [
-#     'AK', 'AL', 'AR', 'AZ', 'CA', 'FL',
-#     'GA', 'HI', 'ID', 'KS', 'KY', 'ME', 
-#     'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 
-#     'NH', 'NV', 'OK', 'OR', 'SC', 'SD', 
-#     'TN', 'TX', 'UT', 'VT', 'WI', 'WV', 
-#     'WY']
+LOCATIONS_BAD = [
+    'AK', 'AL', 'AR', 'AZ', 'CA', 'FL',
+    'GA', 'HI', 'ID', 'KS', 'KY', 'ME', 
+    'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 
+    'NH', 'NV', 'OK', 'OR', 'SC', 'SD', 
+    'TN', 'TX', 'UT', 'VT', 'WI', 'WV', 
+    'WY', 'CO']
 
-LOCATIONS = [
-    'AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL',
-    'GA', 'HI', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY', 'LA', 'MA',
-    'MD', 'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE',
-    'NH', 'NJ', 'NM', 'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI',
-    'SC', 'SD', 'TN', 'TX', 'UT', 'VA', 'VT', 'WA', 'WI', 'WV',
-    'WY'
-]
-
-LOCATIONS_BAD = []
+# # all locations
+# LOCATIONS = [
+#     'AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL',
+#     'GA', 'HI', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY', 'LA', 'MA',
+#     'MD', 'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE',
+#     'NH', 'NJ', 'NM', 'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI',
+#     'SC', 'SD', 'TN', 'TX', 'UT', 'VA', 'VT', 'WA', 'WI', 'WV',
+#     'WY'
+# ]
+# LOCATIONS_BAD = []
 
 # mapping abbreviations to full names 
 LOCATION_NAME = {
