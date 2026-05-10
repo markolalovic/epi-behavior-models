@@ -131,6 +131,137 @@ generate_comparison_tex <- function(variant_display_name, variant_code, out_path
   cat("Generated table:", out_path, "\n")
 }
 
+generate_excluded_locations_tex <- function(out_path) {
+  
+  selection_path <- file.path(project_root, "results", "state_selection_summary.csv")
+  
+  if (!file.exists(selection_path)) {
+    stop(paste("Missing state-selection summary:", selection_path))
+  }
+  
+  df_sel <- read.csv(selection_path, check.names = FALSE)
+  
+  selected_locs <- unlist(config$LOCATIONS)
+  excluded_locs <- unlist(config$LOCATIONS_BAD)
+  
+  accidentally_selected <- intersect(selected_locs, excluded_locs)
+  if (length(accidentally_selected) > 0) {
+    stop(paste(
+      "Locations appear in both LOCATIONS and LOCATIONS_BAD:",
+      paste(accidentally_selected, collapse = ", ")
+    ))
+  }
+  
+  df_excluded <- df_sel %>%
+    filter(location %in% excluded_locs)
+  
+  missing_rows <- setdiff(excluded_locs, df_excluded$location)
+  if (length(missing_rows) > 0) {
+    stop(paste(
+      "Missing state-selection rows for:",
+      paste(missing_rows, collapse = ", ")
+    ))
+  }
+  
+  df_table <- df_excluded %>%
+    mutate(
+      # Use the final config exclusion list as authoritative.
+      objective_status = "excluded",
+      
+      # CO was excluded because of a reporting/data anomaly.
+      reason = case_when(
+        location == "CO" ~ "reporting anomaly",
+        TRUE ~ reason
+      ),
+      
+      primary_reason = case_when(
+        reason == "insufficient mortality signal" ~ "Low signal",
+        reason == "no completed mortality wave" ~ "Incomplete wave",
+        reason == "non-coherent mortality wave" ~ "Non-coherent wave",
+        reason == "reporting anomaly" ~ "Reporting anomaly",
+        TRUE ~ reason
+      ),
+      
+      reason_order = case_when(
+        primary_reason == "Low signal" ~ 1,
+        primary_reason == "Incomplete wave" ~ 2,
+        primary_reason == "Non-coherent wave" ~ 3,
+        primary_reason == "Reporting anomaly" ~ 4,
+        TRUE ~ 5
+      ),
+      
+      diagnostic_note = case_when(
+        location == "CO" ~ "reporting discontinuity",
+        
+        primary_reason == "Low signal" &
+          as.numeric(peak) < 10 ~ "peak $<10$",
+        
+        primary_reason == "Low signal" &
+          as.numeric(total_deaths) < 50 ~ "$\\sum_t y(t)<50$",
+        
+        primary_reason == "Incomplete wave" &
+          as.numeric(days_after_peak) < 21 ~ "peak near window end",
+        
+        primary_reason == "Incomplete wave" &
+          as.numeric(tail_to_peak) > 0.40 ~ "tail/peak $>0.40$",
+        
+        primary_reason == "Non-coherent wave" &
+          as.numeric(high_blocks) > 1 ~ "multiple high-mortality blocks",
+        
+        primary_reason == "Non-coherent wave" &
+          as.numeric(n_outlier_days) > 3 ~ "large local deviations",
+        
+        TRUE ~ ""
+      ),
+      
+      peak_fmt = sprintf("%.2f", as.numeric(peak)),
+      tail_to_peak_fmt = sprintf("%.2f", as.numeric(tail_to_peak)),
+      
+      # Block count is only relevant for the non-coherent-wave exclusion.
+      blocks_fmt = case_when(
+        primary_reason == "Non-coherent wave" ~ as.character(high_blocks),
+        TRUE ~ "--"
+      )
+    ) %>%
+    arrange(reason_order, location) %>%
+    select(
+      State = location,
+      `Primary reason` = primary_reason,
+      Peak = peak_fmt,
+      `Tail/peak` = tail_to_peak_fmt,
+      Blocks = blocks_fmt,
+      Note = diagnostic_note
+    )
+  
+  col_names <- c(
+    "State",
+    "Primary reason",
+    "$\\max_t y(t)$",
+    "Tail/peak",
+    "Blocks",
+    "Diagnostic note"
+  )
+  
+  k_latex <- df_table %>%
+    kable(
+      format = "latex",
+      booktabs = TRUE,
+      escape = FALSE,
+      col.names = col_names,
+      align = "llrrll",
+      table.envir = NULL
+    )
+  
+  k_latex_str <- as.character(k_latex)
+  
+  # Remove row spacing inserted by kable/booktabs, if present.
+  k_latex_str <- gsub("\\\\addlinespace\n?", "", k_latex_str)
+  
+  writeLines(k_latex_str, out_path)
+  cat("Generated table:", out_path, "\n")
+}
+
+
 # save tables to results 
 res_dir <- file.path(project_root, "results")
 
@@ -146,3 +277,7 @@ generate_comparison_tex("Behavioral (Exponential)", "exp",
 generate_comparison_tex("Behavioral (Rational)", "rational", 
   file.path(res_dir, "table_comparison_baseline_rational.tex"))
 
+# Supplement table: excluded locations and state-selection diagnostics
+generate_excluded_locations_tex(
+  file.path(res_dir, "table_excluded_locations.tex")
+)
