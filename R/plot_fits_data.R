@@ -6,9 +6,9 @@
 # - figures/supplement/S4_final_fits_exp.pdf
 # - figures/supplement/S5_final_fits_rational.pdf
 #
-# Each as a single figure for 20 selected locations:
+# Each as a single figure for 19 selected locations:
 #   - 4 rows x 5 columns
-#   - Baseline vs Behavioral (Mixed)
+#   - Baseline vs Behavioral
 #   - 90% predictive intervals + medians + observed data points
 #
 
