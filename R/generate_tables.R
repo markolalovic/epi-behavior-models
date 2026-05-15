@@ -261,6 +261,151 @@ generate_excluded_locations_tex <- function(out_path) {
   cat("Generated table:", out_path, "\n")
 }
 
+# NOTE: new table for sensitivity analysis
+generate_sensitivity_mixed_tex <- function(out_path) {
+  
+  mixed_col <- "Behavioral (Mixed)"
+  
+  selected_locs <- unlist(config$LOCATIONS)
+  excluded_locs <- unlist(config$LOCATIONS_BAD)
+  
+  # model-selection summaries issues:
+  # - RESULT 1 has full location names
+  # - RESULT 2 has abbreviations and different column names
+  bf1_path <- file.path(
+    project_root, "results", "model_selection",
+    "baseline_vs_mixed_summary_1.csv"
+  )
+  bf2_path <- file.path(
+    project_root, "results", "model_selection",
+    "baseline_vs_mixed_summary_2.csv"
+  )
+  
+  bf1 <- read.csv(bf1_path, check.names = FALSE)
+  bf2 <- read.csv(bf2_path, check.names = FALSE)
+  
+  bf1_col <- names(bf1)[grep("^BF", names(bf1))]
+  
+  # standardize RESULT 1 format: Location is full name
+  bf1_std <- bf1 %>%
+    transmute(
+      Location = Location,
+      BF_eq = as.numeric(.data[[bf1_col]]),
+      Evidence = Interpretation
+    ) %>%
+    inner_join(
+      df_nssr %>% select(Location, Abbr),
+      by = "Location"
+    )
+  
+  # Standardize RESULT 2 format: location is abbreviation
+  bf2_std <- bf2 %>%
+    filter(behavior_variant == "behavior_mixed") %>%
+    transmute(
+      Abbr = location,
+      BF_eq = as.numeric(BF_eq),
+      Evidence = Interpretation
+    ) %>%
+    inner_join(
+      df_nssr %>% select(Location, Abbr),
+      by = "Abbr"
+    )
+  
+  # Combine model-selection results for all 51 locations
+  # if a location appears twice, keep the first occurrence
+  bf_all <- bind_rows(bf1_std, bf2_std) %>%
+    distinct(Abbr, .keep_all = TRUE)
+  
+  df_table <- df_nssr %>%
+    select(
+      Location,
+      Abbr,
+      Baseline,
+      all_of(mixed_col)
+    ) %>%
+    inner_join(
+      bf_all %>% select(Abbr, BF_eq, Evidence),
+      by = "Abbr"
+    ) %>%
+    mutate(
+      Set = case_when(
+        Abbr %in% selected_locs ~ "Included",
+        Abbr %in% excluded_locs ~ "Excluded",
+        TRUE ~ "Other"
+      ),
+      Set_order = case_when(
+        Set == "Included" ~ 1,
+        Set == "Excluded" ~ 2,
+        TRUE ~ 3
+      ),
+      Avg_NSSE = (as.numeric(Baseline) + as.numeric(.data[[mixed_col]])) / 2
+    ) %>%
+    arrange(Set_order, desc(Avg_NSSE), Abbr) %>%
+    rowwise() %>%
+    mutate(
+      bold_B = as.numeric(Baseline) < as.numeric(.data[[mixed_col]]),
+      
+      NSSE_B_str = sprintf("%.4f", as.numeric(Baseline)),
+      NSSE_M_str = sprintf("%.4f", as.numeric(.data[[mixed_col]])),
+      Avg_NSSE_str = sprintf("%.4f", as.numeric(Avg_NSSE)),
+      
+      NSSE_B_tex = ifelse(
+        bold_B,
+        paste0("\\textbf{", NSSE_B_str, "}"),
+        NSSE_B_str
+      ),
+      NSSE_M_tex = ifelse(
+        !bold_B,
+        paste0("\\textbf{", NSSE_M_str, "}"),
+        NSSE_M_str
+      ),
+      BF_tex = ifelse(
+        is.infinite(as.numeric(BF_eq)),
+        "$\\infty$",
+        sprintf("%.2f", as.numeric(BF_eq))
+      )
+    ) %>%
+    ungroup() %>%
+    select(
+      State = Abbr,
+      Set,
+      NSSE_B = NSSE_B_tex,
+      NSSE_M = NSSE_M_tex,
+      Avg_NSSE = Avg_NSSE_str,
+      BF_eq = BF_tex,
+      Evidence
+    )
+  
+  n_included <- sum(df_table$Set == "Included")
+  
+  col_names <- c(
+    "State",
+    "Set",
+    "Median $NSSE_B$",
+    "Median $NSSE_M$",
+    "Avg. NSSE",
+    "$BF_{eq}$",
+    "Evidence"
+  )
+  
+  k_latex <- df_table %>%
+    kable(
+      format = "latex",
+      booktabs = TRUE,
+      escape = FALSE,
+      col.names = col_names,
+      align = "llrrrrl",
+      table.envir = NULL
+    ) %>%
+    row_spec(n_included, extra_latex_after = "\\midrule")
+  
+  k_latex_str <- as.character(k_latex)
+  k_latex_str <- gsub("\\\\addlinespace\n?", "", k_latex_str)
+  
+  writeLines(k_latex_str, out_path)
+  cat("Generated table:", out_path, "\n")
+}
+
 
 # save tables to results 
 res_dir <- file.path(project_root, "results")
@@ -280,4 +425,9 @@ generate_comparison_tex("Behavioral (Rational)", "rational",
 # Supplement table: excluded locations and state-selection diagnostics
 generate_excluded_locations_tex(
   file.path(res_dir, "table_excluded_locations.tex")
+)
+
+# NOTE: New Supplement sensitivity table mixed model comparison across all 51 locations
+generate_sensitivity_mixed_tex(
+  file.path(res_dir, "table_sensitivity_mixed.tex")
 )
