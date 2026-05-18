@@ -14,7 +14,7 @@ from tabulate import tabulate
 
 from config import (
     MODELS, POPULATION_SIZE, FIXED_PARAMS, 
-    RESULT, LOCATIONS, LOCATION_NAME
+    RESULT, LOCATIONS, LOCATION_NAME, LOCATIONS_ALL
 )
 
 from models import run_seird_model
@@ -28,7 +28,7 @@ if __name__ == "__main__":
     print(f"Calculating weighted median posterior distances...")
 
     rows = []
-    for loc in LOCATIONS:
+    for loc in LOCATIONS_ALL:
         print(f"Processing {LOCATION_NAME[loc]}...")
         obs = obs_df[loc].to_numpy(dtype=float)
         obs_dict = {"data": obs}

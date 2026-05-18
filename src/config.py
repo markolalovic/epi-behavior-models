@@ -11,32 +11,33 @@ Configuration file specifies:
 from pyabc import Distribution, RV
 import numpy as np
 
-# selected US locations
+# all US locations
+LOCATIONS_ALL = [
+    'AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL',
+    'GA', 'HI', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY', 'LA', 'MA',
+    'MD', 'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE',
+    'NH', 'NJ', 'NM', 'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI',
+    'SC', 'SD', 'TN', 'TX', 'UT', 'VA', 'VT', 'WA', 'WI', 'WV',
+    'WY'
+]
+
+# selected / excluded US locations:
 LOCATIONS = [
-    'CT', 'DC', 'DE', 'IA', 
-    'IL', 'IN', 'LA', 'MA', 'MD', 
-    'MI', 'MN', 'NJ', 'NM', 'NY', 
-    'OH', 'PA', 'RI', 'VA', 'WA']
+    'CT', 'DC', 'DE', 'IA', 'IL',
+    'IN', 'LA', 'MA', 'MD', 'MI',
+    'MN', 'NJ', 'NM', 'NY', 'OH',
+    'PA', 'RI', 'VA', 'WA', 'WI'
+]
 
-# excluded locations
 LOCATIONS_BAD = [
-    'AK', 'AL', 'AR', 'AZ', 'CA', 'FL',
-    'GA', 'HI', 'ID', 'KS', 'KY', 'ME', 
-    'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 
-    'NH', 'NV', 'OK', 'OR', 'SC', 'SD', 
-    'TN', 'TX', 'UT', 'VT', 'WI', 'WV', 
-    'WY', 'CO']
-
-# # all locations
-# LOCATIONS = [
-#     'AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL',
-#     'GA', 'HI', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY', 'LA', 'MA',
-#     'MD', 'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE',
-#     'NH', 'NJ', 'NM', 'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI',
-#     'SC', 'SD', 'TN', 'TX', 'UT', 'VA', 'VT', 'WA', 'WI', 'WV',
-#     'WY'
-# ]
-# LOCATIONS_BAD = []
+    'AK', 'AL', 'AR', 'AZ', 'CA',
+    'CO', 'FL', 'GA', 'HI', 'ID',
+    'KS', 'KY', 'ME', 'MO', 'MS',
+    'MT', 'NC', 'ND', 'NE', 'NH',
+    'NV', 'OK', 'OR', 'SC', 'SD',
+    'TN', 'TX', 'UT', 'VT', 'WV',
+    'WY'
+]
 
 # mapping abbreviations to full names 
 LOCATION_NAME = {

@@ -87,7 +87,7 @@ plot_re_variant <- function(behavioral_display_name, filename_prefix) {
       aes(x = date, y = median, color = model_name),
       linewidth = 0.6, show.legend = TRUE
     ) +
-    facet_wrap(~ location, ncol = 6) +
+    facet_wrap(~ location, ncol = 5) +
     scale_color_manual(name = NULL, values = model_colors_2, breaks = model_order_2) +
     scale_fill_manual(name = NULL, values = model_colors_2, breaks = model_order_2) +
     # shared y-axis
@@ -109,7 +109,7 @@ plot_re_variant <- function(behavioral_display_name, filename_prefix) {
   tex_path <- file.path(out_dir, paste0(filename_prefix, ".tex"))
   pdf_path <- file.path(out_dir, paste0(filename_prefix, ".pdf"))
 
-  tikz(tex_path, width = 11.5, height = 8.5, standAlone = TRUE,
+  tikz(tex_path, width = 10.5, height = 7.2, standAlone = TRUE,
     packages = c(
       "\\usepackage{amsmath}", "\\usepackage{tikz}",
       "\\usepackage[active,tightpage,psfixbb]{preview}",

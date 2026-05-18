@@ -2,140 +2,55 @@
 # -*- coding: utf-8 -*-
 """src/state_selection.py
 
-Objective state selection for the first-wave mortality analysis.
+Location selection for the first-wave mortality analysis.
 
-A location is excluded based on 3 rules:
+Locations are excluded using 2 criteria applied to the 7-day moving average of daily reported deaths:
 
-Rule 1: sufficient mortality signal:
-   - total smoothed mortality in the analysis window is too small
-   - peak 7-day averaged daily mortality is too small
+- Rule 1: insufficient mortality signal
+  * total smoothed mortality is below 50 deaths
+  * peak smoothed daily mortality does not exceed 10 deaths per day
 
-Rule 2: completed mortality wave:
-   - the peak occurs too close to the end of the observation window
-   - the final tail remains too high relative to the peak
+- Rule 2: incomplete first mortality wave
+  * the peak occurs fewer than 21 days before the end of the window
+  * the final 14-day mean exceeds 40% of the peak
 
-Rule 3: coherent mortality wave:
-   - the high-mortality part of the trajectory is not a single dominant block
-   - the smoothed trajectory contains too many large local deviations
-
+- Colorado is additionally excluded 
+  * because of anomaly / discontinuity in the cumulative mortality data / reporting
 
 """
 
 import numpy as np
 import pandas as pd
 
-from config import LOCATIONS, LOCATIONS_BAD, LOCATION_NAME
+from config import LOCATIONS_ALL, LOCATION_NAME
 
-
-# -------------------- selection thresholds --------------------
-
-# Rule 1: sufficient mortality signal
 MIN_TOTAL_DEATHS = 50.0
 MIN_PEAK_DEATHS = 10.0
 
-# Rule 2: completed first mortality wave
 MIN_DAYS_AFTER_PEAK = 21
 TAIL_DAYS = 14
 MAX_TAIL_TO_PEAK = 0.40
 
-# Rule 3: single dominant high-mortality block
-HIGH_MORTALITY_FRACTION = 0.50
-MIN_HIGH_BLOCK_LENGTH = 5
-MAX_GAP_TO_FILL = 3
-MAX_HIGH_BLOCKS = 1
-
-# Rule 3: no large local reporting irregularities
-OUTLIER_WINDOW = 7
-OUTLIER_ABS_THRESHOLD = 5.0
-OUTLIER_REL_THRESHOLD = 0.35
-MAX_OUTLIER_DAYS = 3
-
-
-def fill_short_gaps(mask, max_gap):
-    mask = np.asarray(mask, dtype=bool).copy()
-    n = len(mask)
-
-    i = 0
-    while i < n:
-        if mask[i]:
-            i += 1
-            continue
-
-        start = i
-        while i < n and not mask[i]:
-            i += 1
-        end = i
-
-        left_true = start > 0 and mask[start - 1]
-        right_true = end < n and mask[end]
-
-        if left_true and right_true and (end - start) <= max_gap:
-            mask[start:end] = True
-
-    return mask
-
-
-def count_true_blocks(mask, min_length):
-    """Counts blocks with length at least min_length"""
-    mask = np.asarray(mask, dtype=bool)
-
-    blocks = []
-    i = 0
-    n = len(mask)
-
-    while i < n:
-        if not mask[i]:
-            i += 1
-            continue
-
-        start = i
-        while i < n and mask[i]:
-            i += 1
-        end = i
-
-        length = end - start
-        if length >= min_length:
-            blocks.append((start, end, length))
-
-    return blocks
-
-
-def count_local_outliers(y, peak):
-    """Counts large deviations from a centered local median"""
-    local_median = pd.Series(y).rolling(
-        OUTLIER_WINDOW,
-        center=True,
-        min_periods=1
-    ).median().to_numpy()
-
-    residual = np.abs(y - local_median)
-    threshold = max(OUTLIER_ABS_THRESHOLD, OUTLIER_REL_THRESHOLD * peak)
-
-    n_outlier_days = int(np.sum(residual > threshold))
-    max_local_residual = float(np.max(residual))
-
-    return n_outlier_days, max_local_residual
-
+ADDITIONAL_EXCLUDED = ["CO"]
 
 def format_list(name, values):
     print(f"{name} = [")
-    for i in range(0, len(values), 6):
-        chunk = values[i:i + 6]
+    for i in range(0, len(values), 5):
+        chunk = values[i:i + 5]
         quoted = [f"'{x}'" for x in chunk]
-        print("    " + ", ".join(quoted) + ",")
+        suffix = "," if i + 5 < len(values) else ""
+        print("    " + ", ".join(quoted) + suffix)
     print("]")
-
 
 if __name__ == "__main__":
     data_path = "../data/processed/smoothed_mortality.csv"
     df = pd.read_csv(data_path, parse_dates=["date"])
 
     dates = df["date"]
-    all_locations = sorted(LOCATION_NAME.keys())
 
     rows = []
 
-    for loc in all_locations:
+    for loc in LOCATIONS_ALL:
         y = df[loc].to_numpy(dtype=float)
 
         total_deaths = float(np.sum(y))
@@ -153,16 +68,9 @@ if __name__ == "__main__":
             tail_to_peak = np.inf
             decline_from_peak = -np.inf
 
-        high_mask = y >= HIGH_MORTALITY_FRACTION * peak
-        high_mask = fill_short_gaps(high_mask, MAX_GAP_TO_FILL)
-        high_blocks = count_true_blocks(high_mask, MIN_HIGH_BLOCK_LENGTH)
-
-        n_outlier_days, max_local_residual = count_local_outliers(y, peak)
-
         # Rule 1
         fail_low_deaths = (
-            total_deaths < MIN_TOTAL_DEATHS
-            or peak < MIN_PEAK_DEATHS
+            total_deaths < MIN_TOTAL_DEATHS or peak <= MIN_PEAK_DEATHS
         )
 
         # Rule 2
@@ -171,43 +79,28 @@ if __name__ == "__main__":
             or tail_to_peak > MAX_TAIL_TO_PEAK
         )
 
-        # Rule 3
-        fail_not_single_wave = len(high_blocks) > MAX_HIGH_BLOCKS
-        fail_noisy_trajectory = n_outlier_days > MAX_OUTLIER_DAYS
-
-        fail_noncoherent_wave = (
-            fail_not_single_wave
-            or fail_noisy_trajectory
-        )
+        # data reporting anomaly exclusion
+        fail_reporting_discontinuity = loc in ADDITIONAL_EXCLUDED
 
         excluded = (
             fail_low_deaths
             or fail_no_completed_wave
-            or fail_noncoherent_wave
+            or fail_reporting_discontinuity
         )
-
-        if loc in LOCATIONS:
-            original_status = "selected"
-        elif loc in LOCATIONS_BAD:
-            original_status = "excluded"
-        else:
-            original_status = "not listed"
-
 
         if fail_low_deaths:
             reason = "insufficient mortality signal"
         elif fail_no_completed_wave:
-            reason = "no completed mortality wave"
-        elif fail_noncoherent_wave:
-            reason = "non-coherent mortality wave"
+            reason = "incomplete mortality wave"
+        elif fail_reporting_discontinuity:
+            reason = "reporting discontinuity"
         else:
             reason = "included"
 
         rows.append({
             "location": loc,
             "name": LOCATION_NAME[loc],
-            "original_status": original_status,
-            "objective_status": "excluded" if excluded else "selected",
+            "status": "excluded" if excluded else "selected",
             "reason": reason,
             "total_deaths": total_deaths,
             "peak": peak,
@@ -216,33 +109,27 @@ if __name__ == "__main__":
             "tail_mean": tail_mean,
             "tail_to_peak": tail_to_peak,
             "decline_from_peak": decline_from_peak,
-            "high_blocks": len(high_blocks),
-            "n_outlier_days": n_outlier_days,
-            "max_local_residual": max_local_residual,
             "fail_low_deaths": fail_low_deaths,
             "fail_no_completed_wave": fail_no_completed_wave,
-            "fail_not_single_wave": fail_not_single_wave,
-            "fail_noisy_trajectory": fail_noisy_trajectory,
-            "fail_noncoherent_wave": fail_noncoherent_wave,
+            "fail_reporting_discontinuity": fail_reporting_discontinuity,
         })
 
     summary = pd.DataFrame(rows)
 
     selected = summary.loc[
-        summary["objective_status"] == "selected",
+        summary["status"] == "selected",
         "location"
     ].tolist()
 
     excluded = summary.loc[
-        summary["objective_status"] == "excluded",
+        summary["status"] == "excluded",
         "location"
     ].tolist()
 
-    columns = [
+    display_cols = [
         "location",
         "name",
-        "original_status",
-        "objective_status",
+        "status",
         "reason",
         "total_deaths",
         "peak",
@@ -251,141 +138,123 @@ if __name__ == "__main__":
         "tail_mean",
         "tail_to_peak",
         "decline_from_peak",
-        "high_blocks",
-        "n_outlier_days",
-        "max_local_residual",
     ]
 
-    display = summary[columns].copy()
+    display = summary[display_cols].copy()
     display["total_deaths"] = display["total_deaths"].round(1)
     display["peak"] = display["peak"].round(2)
     display["tail_mean"] = display["tail_mean"].round(2)
     display["tail_to_peak"] = display["tail_to_peak"].round(2)
     display["decline_from_peak"] = display["decline_from_peak"].round(2)
-    display["max_local_residual"] = display["max_local_residual"].round(2)
 
-    print("\nObjective state-selection summary")
-    print("---------------------------------\n")
+    print("\nLocation-selection summary: ")
     print(display.to_string(index=False))
 
-    print("\nSelected locations")
-    print("------------------")
-    print(selected)
+    print("\nCounts: ")
+    print(f"n_total    = {len(LOCATIONS_ALL)}")
     print(f"n_selected = {len(selected)}")
-
-    print("\nExcluded locations")
-    print("------------------")
-    print(excluded)
     print(f"n_excluded = {len(excluded)}")
 
-    print("\nPreviously selected, now excluded")
-    print("---------------------------------")
-    print(summary.loc[
-        (summary["original_status"] == "selected")
-        & (summary["objective_status"] == "excluded"),
-        [
-            "location",
-            "name",
-            "reason",
-            "total_deaths",
-            "peak",
-            "peak_date",
-            "tail_to_peak",
-            "high_blocks",
-            "n_outlier_days",
-            "max_local_residual",
-        ]
-    ].to_string(index=False))
 
-    print("\nPreviously excluded, now selected")
-    print("---------------------------------")
-    print(summary.loc[
-        (summary["original_status"] == "excluded")
-        & (summary["objective_status"] == "selected"),
-        [
-            "location",
-            "name",
-            "reason",
-            "total_deaths",
-            "peak",
-            "peak_date",
-            "tail_to_peak",
-            "high_blocks",
-            "n_outlier_days",
-            "max_local_residual",
-        ]
-    ].to_string(index=False))
-
-    print("\nExclusion counts by reason")
-    print("--------------------------")
     print(
         summary.loc[
-            summary["objective_status"] == "excluded",
+            summary["status"] == "excluded",
             "reason"
         ].value_counts().to_string()
     )
 
-    print("\nConfig-style lists")
-    print("------------------\n")
-    format_list("LOCATIONS_OBJECTIVE", selected)
+    format_list("LOCATIONS", selected)
     print()
-    format_list("LOCATIONS_BAD_OBJECTIVE", excluded)
+    format_list("LOCATIONS_BAD", excluded)
 
     out_path = "../results/state_selection_summary.csv"
     summary.to_csv(out_path, index=False)
-    print(f"\nSaved state-selection summary to: {out_path}")
+    print(f"\nSaved location-selection summary to: {out_path}")
+
+
 
 '''
-Selected locations
-------------------
-['CO', 'CT', 'DC', 'DE', 'IA', 'IL', 'IN', 'LA', 'MA', 'MD', 'MI', 'MN', 'NJ', 'NM', 'NY', 'OH', 'PA', 'RI', 'VA', 'WA']
-n_selected = 20
+Location-selection summary: 
+location                 name   status                        reason  total_deaths    peak  peak_date  days_after_peak  tail_mean  tail_to_peak  decline_from_peak
+      AK               Alaska excluded insufficient mortality signal          13.7    0.57 2020-04-05               87       0.13          0.23               0.77
+      AL              Alabama excluded     incomplete mortality wave         927.4   17.14 2020-05-12               50      10.95          0.64               0.36
+      AR             Arkansas excluded insufficient mortality signal         260.6    7.00 2020-06-23                8       5.65          0.81               0.19
+      AZ              Arizona excluded     incomplete mortality wave        1596.1   36.86 2020-07-01                0      28.80          0.78               0.22
+      CA           California excluded     incomplete mortality wave        5879.6   80.57 2020-04-24               68      61.92          0.77               0.23
+      CO             Colorado excluded       reporting discontinuity        1717.6   85.14 2020-04-07               85       3.03          0.04               0.96
+      CT          Connecticut selected                      included        4314.0  113.86 2020-04-26               66       8.91          0.08               0.92
+      DC District of Columbia selected                      included         548.9   12.14 2020-04-30               62       2.55          0.21               0.79
+      DE             Delaware selected                      included         563.4   12.57 2020-04-28               64       1.60          0.13               0.87
+      FL              Florida excluded     incomplete mortality wave        3429.1   50.71 2020-05-08               54      35.45          0.70               0.30
+      GA              Georgia excluded     incomplete mortality wave        2783.6   44.29 2020-04-20               72      22.41          0.51               0.49
+      HI               Hawaii excluded insufficient mortality signal          17.9    0.86 2020-04-27               65       0.05          0.06               0.94
+      IA                 Iowa selected                      included         707.7   15.71 2020-05-26               36       3.78          0.24               0.76
+      ID                Idaho excluded insufficient mortality signal          91.0    3.43 2020-04-15               77       0.29          0.08               0.92
+      IL             Illinois selected                      included        6884.9  116.86 2020-05-13               49      40.23          0.34               0.66
+      IN              Indiana selected                      included        2549.7   42.29 2020-04-27               65      12.86          0.30               0.70
+      KS               Kansas excluded insufficient mortality signal         269.6    6.57 2020-04-16               76       1.76          0.27               0.73
+      KY             Kentucky excluded insufficient mortality signal         558.3   10.00 2020-04-22               70       4.00          0.40               0.60
+      LA            Louisiana selected                      included        3200.1   65.86 2020-04-18               74      13.04          0.20               0.80
+      MA        Massachusetts selected                      included        8043.9  189.43 2020-04-25               67      30.93          0.16               0.84
+      MD             Maryland selected                      included        3166.6   68.57 2020-05-08               54      16.34          0.24               0.76
+      ME                Maine excluded insufficient mortality signal         104.1    2.57 2020-04-24               68       0.26          0.10               0.90
+      MI             Michigan selected                      included        6161.3  145.86 2020-04-23               69      10.58          0.07               0.93
+      MN            Minnesota selected                      included        1461.0   25.00 2020-05-30               32       9.83          0.39               0.61
+      MO             Missouri excluded     incomplete mortality wave        1025.0   18.86 2020-04-26               66       9.11          0.48               0.52
+      MS          Mississippi excluded     incomplete mortality wave        1046.6   19.29 2020-05-07               55      10.70          0.56               0.44
+      MT              Montana excluded insufficient mortality signal          21.9    1.00 2020-04-22               70       0.22          0.22               0.78
+      NC       North Carolina excluded     incomplete mortality wave        1360.6   22.86 2020-06-02               29      15.80          0.69               0.31
+      ND         North Dakota excluded insufficient mortality signal          78.7    1.86 2020-05-12               50       0.34          0.18               0.82
+      NE             Nebraska excluded insufficient mortality signal         268.4    6.14 2020-06-17               14       3.44          0.56               0.44
+      NH        New Hampshire excluded insufficient mortality signal         366.7    8.29 2020-05-13               49       3.37          0.41               0.59
+      NJ           New Jersey selected                      included       14973.4  345.00 2020-04-20               72      33.48          0.10               0.90
+      NM           New Mexico selected                      included         492.4   10.29 2020-05-15               47       4.10          0.40               0.60
+      NV               Nevada excluded insufficient mortality signal         502.1    9.71 2020-04-13               79       2.70          0.28               0.72
+      NY             New York selected                      included       31900.7 1013.57 2020-04-12               80      33.55          0.03               0.97
+      OH                 Ohio selected                      included        2575.7   44.71 2020-04-28               64      12.59          0.28               0.72
+      OK             Oklahoma excluded insufficient mortality signal         383.1    8.29 2020-04-25               67       1.63          0.20               0.80
+      OR               Oregon excluded insufficient mortality signal         203.1    3.71 2020-04-13               79       1.88          0.51               0.49
+      PA         Pennsylvania selected                      included        6623.6  158.71 2020-05-05               57      28.07          0.18               0.82
+      RI         Rhode Island selected                      included         968.9   20.43 2020-05-08               54       4.07          0.20               0.80
+      SC       South Carolina excluded     incomplete mortality wave         719.9   15.14 2020-05-04               58       8.50          0.56               0.44
+      SD         South Dakota excluded insufficient mortality signal          90.3    2.29 2020-05-06               56       1.07          0.47               0.53
+      TN            Tennessee excluded     incomplete mortality wave         588.6   11.29 2020-04-08               84       8.04          0.71               0.29
+      TX                Texas excluded     incomplete mortality wave        2778.6   49.14 2020-07-01                0      37.18          0.76               0.24
+      UT                 Utah excluded insufficient mortality signal         168.1    3.00 2020-06-17               14       1.96          0.65               0.35
+      VA             Virginia selected                      included        1731.4   34.00 2020-05-28               34      13.00          0.38               0.62
+      VT              Vermont excluded insufficient mortality signal          56.0    1.86 2020-04-18               74       0.07          0.04               0.96
+      WA           Washington selected                      included        1291.3   35.57 2020-04-07               85       5.80          0.16               0.84
+      WI            Wisconsin selected                      included         809.4   13.00 2020-05-29               33       4.87          0.37               0.63
+      WV        West Virginia excluded insufficient mortality signal          92.7    2.71 2020-04-23               69       0.36          0.13               0.87
+      WY              Wyoming excluded insufficient mortality signal          20.0    0.71 2020-04-22               70       0.14          0.20               0.80
 
-Excluded locations
-------------------
-['AK', 'AL', 'AR', 'AZ', 'CA', 'FL', 'GA', 'HI', 'ID', 'KS', 'KY', 'ME', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 'NH', 'NV', 'OK', 'OR', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'WI', 'WV', 'WY']
+Counts: 
+n_total    = 51
+n_selected = 20
 n_excluded = 31
 
-Previously selected, now excluded
----------------------------------
-location          name                        reason  total_deaths     peak  peak_date  tail_to_peak  high_blocks  n_outlier_days  max_local_residual
-      ID         Idaho insufficient mortality signal     91.000000 3.428571 2020-04-15      0.083333            1               0            0.857143
-      ND  North Dakota insufficient mortality signal     78.714286 1.857143 2020-05-12      0.181319            1               0            0.571429
-      NH New Hampshire insufficient mortality signal    366.714286 8.285714 2020-05-13      0.406404            1               0            1.571429
-      NV        Nevada insufficient mortality signal    502.142857 9.714286 2020-04-13      0.278361            1               0            2.000000
-      OK      Oklahoma insufficient mortality signal    383.142857 8.285714 2020-04-25      0.197044            1               0            1.285714
+Reason:
+insufficient mortality signal    19
+incomplete mortality wave        11
+reporting discontinuity           1
 
-Previously excluded, now selected
----------------------------------
-Empty DataFrame
-Columns: [location, name, reason, total_deaths, peak, peak_date, tail_to_peak, high_blocks, n_outlier_days, max_local_residual]
-Index: []
-
-Exclusion counts by reason
---------------------------
-reason
-insufficient mortality signal    18
-no completed mortality wave      11
-non-coherent mortality wave       2
-
-Config-style lists
-------------------
-
-LOCATIONS_OBJECTIVE = [
-    'CO', 'CT', 'DC', 'DE', 'IA', 'IL',
-    'IN', 'LA', 'MA', 'MD', 'MI', 'MN',
-    'NJ', 'NM', 'NY', 'OH', 'PA', 'RI',
-    'VA', 'WA',
+LOCATIONS = [
+    'CT', 'DC', 'DE', 'IA', 'IL',
+    'IN', 'LA', 'MA', 'MD', 'MI',
+    'MN', 'NJ', 'NM', 'NY', 'OH',
+    'PA', 'RI', 'VA', 'WA', 'WI'
 ]
 
-LOCATIONS_BAD_OBJECTIVE = [
-    'AK', 'AL', 'AR', 'AZ', 'CA', 'FL',
-    'GA', 'HI', 'ID', 'KS', 'KY', 'ME',
-    'MO', 'MS', 'MT', 'NC', 'ND', 'NE',
-    'NH', 'NV', 'OK', 'OR', 'SC', 'SD',
-    'TN', 'TX', 'UT', 'VT', 'WI', 'WV',
-    'WY',
+LOCATIONS_BAD = [
+    'AK', 'AL', 'AR', 'AZ', 'CA',
+    'CO', 'FL', 'GA', 'HI', 'ID',
+    'KS', 'KY', 'ME', 'MO', 'MS',
+    'MT', 'NC', 'ND', 'NE', 'NH',
+    'NV', 'OK', 'OR', 'SC', 'SD',
+    'TN', 'TX', 'UT', 'VT', 'WV',
+    'WY'
 ]
 
-Saved state-selection summary to: ../results/state_selection_summary.csv
+Saved location-selection summary to: ../results/state_selection_summary.csv
+
 '''
