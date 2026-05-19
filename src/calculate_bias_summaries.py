@@ -63,21 +63,22 @@ if __name__ == "__main__":
     print(f"difference: {delta_final_pp.loc[max_loc]:.2f} percentage points")
 
 '''
-(.venv) ➜  src git:(main) ✗ python calculate_bias_summaries.py
-
+(.venv) ➜  src git:(main) python calculate_bias_summaries.py 
 R0: Behavioral (Mixed) - Baseline
-positive locations: 19/19
-median: 1.25
-IQR: 0.87 - 1.99
+---------------------------------
+positive locations: 20/20
+median: 1.26
+IQR: 0.91 - 1.97
 range: 0.15 - 2.67
 
 Final size: Baseline - Behavioral (Mixed)
-positive locations: 19/19
-median: 2.37 percentage points
-IQR: 1.48 - 5.51 percentage points
-range: 0.64 - 7.53 percentage points
+-----------------------------------------
+positive locations: 20/20
+median: 2.96 percentage points
+IQR: 1.58 - 6.22 percentage points
+range: 0.64 - 7.87 percentage points
 
 Largest final-size overestimation
-location: WA
-difference: 7.53 percentage points
+location: WI
+difference: 7.87 percentage points
 '''
