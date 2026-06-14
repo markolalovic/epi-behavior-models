@@ -94,6 +94,8 @@ Rscript -e 'install.packages(c("patchwork", "knitr", "kableExtra", "ggh4x"), rep
 ```
 
 ## Citation
+
+If you find this useful in your work, please cite the corresponding paper:
 ```bibtex
 @article {Pant2025Behavior,
   author = {Pant, Binod and Lalovic, Marko and Kiss, Istv{\'a}n Z. and Santillana, Mauricio},
