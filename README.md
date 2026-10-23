@@ -12,7 +12,7 @@ Resources:
 
 - [Paper](https://doi.org/10.1371/journal.pcbi.1014746)
 - [Supplement (S1 Appendix)](https://doi.org/10.1371/journal.pcbi.1014746.s001)
-- [Slides](https://zenodo.org/records/23593207)
+- [Slides](https://zenodo.org/records/23593207/files/behavior-slides-graz-2026.pdf)
 
 ## Overview
 This repository provides a framework for parameter inference of compartmental epidemic models that incorporate human behavioral feedback. Inference uses approximate Bayesian computation with sequential Monte Carlo (ABC-SMC), implemented with the [pyABC](https://pyabc.readthedocs.io/en/latest/) library.
