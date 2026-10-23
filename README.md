@@ -2,29 +2,36 @@
 
 Source code for the paper:
 
-**The Paradox of Neglecting Changes in Behavior: How Standard Epidemic Models Misestimate Both Transmissibility and Final Epidemic Size**
+**The paradox of neglecting changes in behavior: How standard epidemic models misestimate both transmissibility and final epidemic size**
+
+Binod Pant, Marko Lalovic, István Z. Kiss, and Mauricio Santillana.  
+*PLOS Computational Biology* **22**(9), e1014746 (2026).  
+DOI: [10.1371/journal.pcbi.1014746](https://doi.org/10.1371/journal.pcbi.1014746)
 
 Resources:
 
-- [Preprint PDF](https://www.medrxiv.org/content/10.64898/2025.12.07.25341782v3.full.pdf)
-- [Supplement](https://www.medrxiv.org/content/medrxiv/early/2025/12/29/2025.12.07.25341782/DC1/embed/media-1.pdf?download=true)
-- [Poster](https://zenodo.org/records/20689785)
-
+- [Paper](https://doi.org/10.1371/journal.pcbi.1014746)
+- [Supplement (S1 Appendix)](https://doi.org/10.1371/journal.pcbi.1014746.s001)
+- [Slides](https://zenodo.org/records/23593207)
 
 ## Overview
-This repository provides a framework for parameter inference of compartmental epidemic models that incorporate human behavioral feedback. The inference is performed using Approximate Bayesian Computation based on Sequential Monte Carlo (ABC-SMC) using [pyABC](https://pyabc.readthedocs.io/en/latest/) library.
+This repository provides a framework for parameter inference of compartmental epidemic models that incorporate human behavioral feedback. Inference uses approximate Bayesian computation with sequential Monte Carlo (ABC-SMC), implemented with the [pyABC](https://pyabc.readthedocs.io/en/latest/) library.
 
 It includes:
-- Implementation of SEIRD models with constant and behavioral transmission.
+
+- SEIRD models with constant transmission and behavioral feedback.
 - ABC-SMC pipeline for estimating posterior distributions of epidemiological parameters.
-- Bayesian model selection to compare behavioral and baseline model performance (using Bayes factors).
-- Analysis and diagnostics of the inference results and visualizations in R.
+- Bayesian model selection to compare behavioral and baseline models using Bayes factors.
+- Analysis and diagnostics of inference results, with figures and tables generated in R.
+
 
 ## Examples
-In the examples below we estimate parameters from synthetic observations for two models.
+
+The examples below estimate parameters from synthetic observations for two models.
 
 ### 1. Baseline model (SEIRD)
-Recovery of parameters under the assumption of constant transmission $\beta(t) = \beta_0$:
+
+Recover parameters under the assumption of constant transmission, $\beta(t) = \beta_0$:
 ```bash
 python3 src/run_example.py --model baseline
 ```
@@ -35,7 +42,9 @@ python3 src/run_example.py --model baseline
 The red dashed lines and markers indicate the ground-truth parameters used to generate the synthetic observations.
 
 ### 2. Behavioral model (Mixed form)
-Recovery of parameters when including the behavioral sensitivity $\zeta$:
+
+Recover parameters including the behavioral sensitivity $\zeta$:
+
 ```bash
 python3 src/run_example.py --model behavior
 ```
@@ -47,7 +56,8 @@ The red dashed lines and markers indicate the ground-truth parameters used to ge
 
 ## Reproducing results
 ### 1. Installation
-Clone the repository
+
+Clone the repository:
 ```bash
 git clone https://github.com/markolalovic/epi-behavior-models.git
 cd epi-behavior-models
@@ -94,16 +104,19 @@ Rscript -e 'install.packages(c("patchwork", "knitr", "kableExtra", "ggh4x"), rep
 ```
 
 ## Citation
-
 If you find this useful in your work, please cite the corresponding paper:
+
 ```bibtex
-@article {Pant2025Behavior,
+@article{pant2026paradox,
+  title = {The paradox of neglecting changes in behavior: {How} standard epidemic models misestimate both transmissibility and final epidemic size},
   author = {Pant, Binod and Lalovic, Marko and Kiss, Istv{\'a}n Z. and Santillana, Mauricio},
-  title = {The Paradox of Neglecting Changes in Behavior: How Standard Epidemic Models Misestimate Both Transmissibility and Final Epidemic Size},
-  year = {2025},
-  doi = {10.64898/2025.12.07.25341782},
-  journal = {medRxiv},
-  note = {Preprint. Submitted to PLOS Computational Biology},
-  url = {https://www.medrxiv.org/content/10.64898/2025.12.07.25341782v3},
+  journal = {PLOS Computational Biology},
+  volume = {22},
+  number = {9},
+  pages = {e1014746},
+  year = {2026},
+  doi = {10.1371/journal.pcbi.1014746},
+  url = {https://doi.org/10.1371/journal.pcbi.1014746},
+  publisher = {Public Library of Science}
 }
 ```
